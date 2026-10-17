@@ -1,0 +1,205 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Julpies House</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <link rel="stylesheet" href="/src/style.css" />
+</head>
+<body>
+  <canvas id="game"></canvas>
+  <div id="fade"></div>
+  <div id="bt-vignette"></div>
+  <div id="bt-grain"></div>
+
+  <div id="hud">
+    <div id="score-box">
+      <div id="score">$0</div>
+      <div id="mult">x1</div>
+      <div id="target">TARGET $1,000,000</div>
+    </div>
+    <div id="radar">
+      <canvas id="minimap" width="190" height="190"></canvas>
+      <div id="bounty"><span class="lbl">BOUNTY</span><span id="wanted-level"></span><div id="wanted"></div></div>
+      <div id="timer"></div>
+      <div id="respect"></div>
+      <div id="mode-tag"></div>
+    </div>
+    <div id="topbars">
+      <div class="trow"><span class="tl">HEALTH</span><div class="tbar"><div id="top-health" class="tfill hp"></div></div><span id="top-health-n" class="tn">100</span></div>
+      <div class="trow" id="top-armor-row"><span class="tl">ARMOR</span><div class="tbar"><div id="top-armor" class="tfill ar"></div></div><span id="top-armor-n" class="tn">0</span></div>
+      <div class="trow" id="top-veh-row" style="display:none"><span class="tl" id="top-veh-l">CAR</span><div class="tbar"><div id="top-veh" class="tfill veh"></div></div><span id="top-veh-n" class="tn"></span></div>
+      <div id="bossbar" class="mini"><div id="bb-name">BOSS</div><div class="bb-track"><div id="bb-fill"></div></div></div>
+    </div>
+    <div id="pager"><div id="pager-text"></div></div>
+    <div id="objective"><div id="objective-text"></div></div>
+    <div id="status">
+      <div id="weapon">FISTS</div>
+      <div id="vehicle"><div class="vlabel"><span id="veh-name"></span><span id="veh-hp"></span></div><div class="bar veh"><div id="veh-fill" class="fill"></div></div></div>
+      <div class="hp-row">
+        <div class="bar"><div id="health" class="fill"></div></div>
+        <div id="pills" class="pills empty" title="Painkillers (H)"><svg viewBox="0 0 14 20" width="12" height="17" aria-hidden="true"><rect x="4" y="1" width="6" height="3" rx="1" fill="#f2f2f2"/><rect x="2" y="4" width="10" height="14" rx="2" fill="#e8892b" stroke="#000" stroke-width="1"/><rect x="3.5" y="9" width="7" height="4" fill="#fff"/></svg><span id="pill-count">x0</span></div>
+      </div>
+      <div class="bar armor"><div id="armor" class="fill"></div></div>
+      <div id="bt-row"><svg id="bt-glass" viewBox="0 0 24 26" width="18" height="26" aria-hidden="true">
+        <defs><clipPath id="clip-top"><rect id="sand-top" x="0" y="2" width="24" height="11"/></clipPath><clipPath id="clip-bot"><rect id="sand-bot" x="0" y="24" width="24" height="0"/></clipPath></defs>
+        <polygon points="4,2 20,2 12,13" fill="#ffe066" clip-path="url(#clip-top)"/>
+        <polygon points="12,13 4,24 20,24" fill="#ffe066" clip-path="url(#clip-bot)"/>
+        <path d="M3 1h18M3 25h18M4 2l8 11-8 11M20 2l-8 11 8 11" fill="none" stroke="#fff" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      <div class="bar bt" id="bt-box"><div id="btmeter" class="fill"></div><span class="label">BULLET TIME</span></div></div>
+    </div>
+    <div id="crosshair"><i class="ch t"></i><i class="ch b"></i><i class="ch l"></i><i class="ch r"></i></div>
+    <div id="prompt"></div>
+    <div id="toast"></div>
+    <div id="big"><div id="big-text"></div><div id="big-sub"></div></div>
+    <div id="click-to-aim"><span>CLICK TO AIM</span></div>
+  </div>
+
+  <div id="touch">
+    <div id="touch-zone"></div>
+    <div id="stick"><div id="stick-knob"></div></div>
+    <div id="touch-pause" class="tb small">II</div>
+    <div id="touch-map" class="tb map" data-key="KeyM" data-tap="1">MAP</div>
+    <div id="touch-cam" class="tb cam" data-key="KeyV" data-tap="1">CAM</div>
+    <div id="touch-foot">
+      <div class="tb hold fire" data-key="Mouse0">FIRE</div>
+      <div class="tb hold jump" data-key="Space" data-tap="1">JUMP</div>
+      <div class="tb hold dodge" data-key="Mouse2" data-tap="1">DODGE</div>
+      <div class="tb hold bt" data-key="ShiftLeft" data-tap="1">BULLET<br>TIME</div>
+      <div class="tb hold weapon" data-key="KeyQ" data-tap="1">WEAPON</div>
+      <div class="tb hold pills" data-key="KeyH" data-tap="1">PILLS</div>
+      <div class="tb hold use" id="tb-use" data-key="KeyE" data-tap="1">USE</div>
+    </div>
+    <div id="touch-drive">
+      <div class="tb hold left" data-key="KeyA">◀</div>
+      <div class="tb hold right" data-key="KeyD">▶</div>
+      <div class="tb hold gas" data-key="KeyW">GAS</div>
+      <div class="tb hold brake" data-key="KeyS">BRAKE</div>
+      <div class="tb hold hand" data-key="Space">HAND<br>BRAKE</div>
+      <div class="tb hold exit" data-key="KeyE" data-tap="1">GET OUT</div>
+      <div class="tb hold fire cannon" id="tb-cannon" data-key="Mouse0">FIRE</div>
+    </div>
+  </div>
+  <div id="rotate"><div>ROTATE TO LANDSCAPE</div></div>
+
+  <div id="title">
+    <div class="panel">
+      <h1>JULPIES HOUSE</h1>
+      <p class="tag">Top-down crime city. Third-person bullet time the moment you step out of the car.</p>
+      <div id="difficulty" class="difficulty">
+        <span class="dlabel">DIFFICULTY</span>
+        <button data-diff="easy">EASY</button>
+        <button data-diff="normal" class="sel">NORMAL</button>
+        <button data-diff="hard">HARD</button>
+        <p id="diff-blurb" class="dblurb"></p>
+      </div>
+      <div id="char-select">
+        <span class="dlabel">WHO ARE YOU?</span>
+        <div id="char-cards"></div>
+        <button id="char-back" class="ghost">BACK</button>
+      </div>
+      <div class="buttons">
+        <button id="btn-continue">CONTINUE</button>
+        <button id="btn-new">NEW GAME</button>
+        <button id="btn-load-title">LOAD GAME</button>
+      </div>
+      <div class="controls">
+        <div>
+          <h3>ON FOOT (third person)</h3>
+          <p><b>Mouse</b> aim · <b>WASD</b> move · <b>LMB</b> fire</p>
+          <p><b>V</b> camera distance · <b>Shift</b> bullet time · <b>Space</b> jump · <b>RMB</b> shoot-dodge</p>
+          <p><b>1-9 / wheel</b> weapons · <b>H</b> painkiller · <b>E</b> enter car / phone / gun shop</p>
+        </div>
+        <div>
+          <h3>DRIVING (top down)</h3>
+          <p><b>W/S</b> gas / brake · <b>A/D</b> steer</p>
+          <p><b>Space</b> handbrake · <b>E / F</b> get out</p>
+          <p><b>Esc</b> pause · <b>`</b> cheats</p>
+          <p><b>Gamepad</b> LS move · RS look · RT fire · LT bullet time · A jump · B dodge · X use</p>
+        </div>
+      </div>
+      <p class="hint">Answer ringing payphones to take jobs. Reach $1,000,000 to own the city. Respray shop on Harlow Ave clears the heat.</p>
+    </div>
+  </div>
+
+  <div id="pause">
+    <div class="panel">
+      <h1>PAUSED</h1>
+      <p>Press <b>Esc</b> or click to resume.</p>
+      <p id="pause-diff" class="pdiff"></p>
+      <p id="pause-hero" class="pdiff"></p>
+      <button id="btn-resume">RESUME</button>
+      <button id="btn-save">SAVE GAME</button>
+      <button id="btn-load">LOAD GAME</button>
+      <button id="btn-cheats">CHEATS</button>
+      <button id="btn-quit">QUIT TO TITLE</button>
+      <p id="pause-cheats" class="pdiff"></p>
+    </div>
+  </div>
+
+  <div id="saves-dialog" role="dialog" aria-modal="true" aria-labelledby="saves-title">
+    <div class="panel">
+      <h1 id="saves-title">SAVE GAME</h1>
+      <div id="saves-save-row">
+        <input id="saves-name" type="text" maxlength="40" placeholder="Save name" autocomplete="off" autocorrect="off" autocapitalize="words" spellcheck="false" enterkeyhint="done" />
+        <button id="saves-do-save">SAVE</button>
+      </div>
+      <div id="saves-msg"></div>
+      <div id="saves-confirm"><span id="saves-confirm-text"></span><button id="saves-yes">YES</button><button id="saves-no">NO</button></div>
+      <div id="saves-list"></div>
+      <button id="saves-close">BACK</button>
+    </div>
+  </div>
+
+  <div id="shop">
+    <div class="panel shop-panel">
+      <h1 id="shop-title">GUN SHOP</h1>
+      <div class="shop-cash-line">CASH <span id="shop-cash">$0</span></div>
+      <div id="shop-list"></div>
+      <button id="shop-close" type="button">CLOSE</button>
+    </div>
+  </div>
+
+  <div id="dealer">
+    <div class="panel shop-panel dealer-panel">
+      <h1 id="dealer-title">DEALER</h1>
+      <div id="dealer-blurb"></div>
+      <div class="shop-cash-line">CASH <span id="dealer-cash">$0</span></div>
+      <div id="dealer-msg"></div>
+      <div id="dealer-list"></div>
+      <button id="dealer-close" type="button">CLOSE</button>
+    </div>
+  </div>
+
+  <div id="map" role="dialog" aria-modal="true" aria-label="City map">
+    <div class="map-frame">
+      <div id="map-view">
+        <canvas id="map-canvas"></canvas>
+        <div class="map-zoom">
+          <button id="map-zin" type="button" aria-label="Zoom in">+</button>
+          <button id="map-zout" type="button" aria-label="Zoom out">&minus;</button>
+          <button id="map-me" type="button">ME</button>
+          <button id="map-fit" type="button">ALL</button>
+        </div>
+      </div>
+      <div class="map-side">
+        <h1>CITY MAP</h1>
+        <div id="map-obj"><div class="map-lbl">OBJECTIVE</div><div id="map-obj-text"></div></div>
+        <div class="map-lbl">LEGEND</div>
+        <div id="map-legend"></div>
+        <button id="map-save" type="button" class="map-save">SAVE GAME</button>
+        <div class="map-note">Pulsing ring: ringing payphone or active objective. Drag to pan, scroll or +/- to zoom.</div>
+        <div class="map-lbl">TERRITORIES</div>
+        <div id="map-turf"></div>
+        <button id="map-close" type="button">CLOSE (M)</button>
+      </div>
+    </div>
+  </div>
+
+  <script type="module" src="/src/main.js"></script>
+</body>
+</html>

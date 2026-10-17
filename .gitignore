@@ -1,0 +1,8 @@
+node_modules/
+dist/
+saves/
+.DS_Store
+public/assets/manifest.json
+assets-src/
+voice-lines.csv
+voice-lines.json

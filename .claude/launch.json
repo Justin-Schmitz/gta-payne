@@ -1,0 +1,29 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "dev",
+      "runtimeExecutable": "node",
+      "runtimeArgs": [
+        "server.js",
+        "--dev",
+        "--port",
+        "4141"
+      ],
+      "port": 4141
+    },
+    {
+      "name": "verify",
+      "runtimeExecutable": "node",
+      "runtimeArgs": [
+        "server.js",
+        "--dev",
+        "--port",
+        "4199",
+        "--api-port",
+        "4198"
+      ],
+      "port": 4199
+    }
+  ]
+}

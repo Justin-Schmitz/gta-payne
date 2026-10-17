@@ -1,0 +1,23 @@
+{
+  "name": "gta-payne",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "description": "Julpies House: a top-down crime city (GTA1 style) that drops into third-person bullet-time (Max Payne style) whenever you leave your car.",
+  "scripts": {
+    "dev": "node server.js --dev",
+    "lan": "node server.js --dev",
+    "serve": "vite build && node server.js --port 4141",
+    "assets": "node scripts/scan-assets.js",
+    "voice-lines": "node scripts/voice-lines.js",
+    "build": "vite build",
+    "preview": "vite preview",
+    "build:site": "node scripts/scan-assets.js && vite build"
+  },
+  "dependencies": {
+    "three": "^0.170.0"
+  },
+  "devDependencies": {
+    "vite": "^6.0.0"
+  }
+}
