@@ -10,6 +10,66 @@ All content (city, characters, missions, dialogue) is original. The game needs n
 default every texture is generated on a canvas, every model is low-poly geometry and every sound is
 synthesised with Web Audio. You can optionally drop in real CC0 art and sound (see below).
 
+## About this project
+
+Julpies House was built entirely by describing it in natural language to **Claude Fable 5.1**
+(Anthropic's Claude Code), as a father-and-sons project about what AI-assisted creation looks like
+in practice: you say what the game should feel like ("GTA 1 from above, Max Payne when you get
+out of the car", "cheat codes like the old days", "make Julpie the final boss"), the AI plans the
+work, writes and tests the code, and you play it and push back. Every system below was requested in
+plain English, built by Fable (often delegating scoped sub-tasks to further Claude agents working
+in parallel), verified in a browser, and iterated on feedback. No game engine, no asset pipeline:
+plain JavaScript, three.js, and CC0 art and sound.
+
+## Architecture overview
+
+One page, one `<canvas>`, no framework. Roughly 13,000 lines of plain ES modules under `src/`.
+
+```
+browser
+ ├─ index.html + src/style.css      HUD, menus, dialogs, touch layer (all DOM; the game is one canvas)
+ ├─ src/main.js                     boot: title screen, difficulty + character pickers, frame loop
+ └─ src/game.js                     Game: the hub every system hangs off (scene, entities, state,
+                                    mode switching, save/load, events such as onPedDeath / explode)
+      ├─ input                      input.js (keys, mouse, pointer lock), gamepad.js, ui/touch.js
+      ├─ world                      world/city.js (procedural grid city + collision + lane/sidewalk
+      │                             graphs + named places), world/interior.js (shop rooms),
+      │                             world/assets.js (Kenney model/sound loading with fallbacks),
+      │                             world/textures.js (canvas textures)
+      ├─ entities                   entities/vehicle.js (arcade physics + traffic/police/chase AI),
+      │                             entities/ped.js (civilians, gangs, cops, bosses; animation),
+      │                             entities/player.js (health, armour, weapons, meters, perks)
+      ├─ modes                      modes/driveMode.js (top-down camera + driving input),
+      │                             modes/footMode.js (third-person camera, aim assist, bullet time,
+      │                             shoot-dodge, jump)
+      ├─ systems                    combat.js (projectiles, sword, grenades, hit zones), killcam.js,
+      │                             wanted.js (heat + police response), population.js (traffic,
+      │                             peds, gang turf), missions.js (campaign step runner), jobs.js
+      │                             (contacts, vehicle jobs, random events), activities.js (frenzies,
+      │                             races), interiors.js, cheats.js, effects.js (particles),
+      │                             audio.js (file-first, synth fallback), shouts.js
+      ├─ data                       pure content tables: missions, jobs, gangs, shops, dealers,
+      │                             characters, difficulty, camera presets, cheats, voices
+      └─ ui                         hud.js, minimap.js, map.js, shop.js, dealer.js, saves.js
+server.js                           LAN host: serves dist/ + a tiny JSON save API (saves/*.json);
+                                    in dev it also launches Vite and proxies /api to itself
+scripts/                            scan-assets.js (builds public/assets/manifest.json),
+                                    voice-lines.js (exports every spoken line for TTS)
+wrangler.jsonc                      Cloudflare Workers static deploy of dist/ (no save API there yet)
+```
+
+How a frame flows: `main.js` calls `game.frame()`; the gamepad is polled, then `game.update(raw)`
+scales time (bullet time slows the world to 0.2 while your aim stays real-time), runs the active
+mode, then vehicles, peds, combat, effects, wanted, population, missions, jobs, activities,
+pickups, phones, markers, camera and HUD, in that order. Entering a car swaps `footMode` for
+`driveMode` with a camera swoop; walking into a shop swaps the collision world for an interior room
+and pauses the city.
+
+Design rules that kept it maintainable: all tuning lives in `src/data/*` and `difficulty.js`
+multipliers; only one objective owner runs at a time (`game.isBusy()`); every spoken line goes
+through `game.say(id, text, who)` so voices can be dropped in later; every asset has a procedural
+fallback so the game runs with an empty `public/assets/`.
+
 ## Run it
 
 ```bash
