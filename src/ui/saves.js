@@ -12,6 +12,15 @@ const $ = (id) => document.getElementById(id);
 const slugify = (n) => String(n).toLowerCase().replace(/[^a-z0-9-]/g, '-').slice(0, 40);
 const fmtMoney = (n) => '$' + Math.floor(n).toLocaleString('en-US');
 
+/** Hosted copies (no save API) get a friendlier message than the LAN dev setup. */
+function noServerMessage() {
+  const h = location.hostname;
+  const local = h === 'localhost' || h === '127.0.0.1' || /^(10\.|192\.168\.|172\.(1[6-9]|2\d|3[01])\.)/.test(h) || h.endsWith('.ts.net') || h.endsWith('.local');
+  return local
+    ? 'SAVE SERVER NOT REACHABLE. START THE GAME WITH "npm run dev" (or "npm run serve"), NOT PLAIN "vite".'
+    : 'ONLINE VERSION: NO SHARED SAVE SERVER YET. YOUR GAME IS SAVED IN THIS BROWSER (CONTINUE / F5).';
+}
+
 export class SavesUI {
   constructor(game) {
     this.game = game;
@@ -105,9 +114,9 @@ export class SavesUI {
       const text = await r.text();
       try { data = text ? JSON.parse(text) : null; } catch (e) { data = undefined; }
     } catch (e) {
-      throw new Error('SAVE SERVER NOT REACHABLE. START THE GAME WITH "npm run dev" (or "npm run serve"), NOT PLAIN "vite".');
+      throw new Error(noServerMessage());
     } finally { clearTimeout(timer); }
-    if (data === undefined) throw new Error('SAVE SERVER NOT REACHABLE. START THE GAME WITH "npm run dev" (or "npm run serve"), NOT PLAIN "vite".');
+    if (data === undefined) throw new Error(noServerMessage());
     if (!r.ok) throw new Error(((data && data.error) || 'server error ' + r.status).toUpperCase());
     return data;
   }
