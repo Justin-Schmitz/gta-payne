@@ -1,0 +1,8 @@
+{
+  // Cloudflare Workers "static assets" deploy: `npm run build:site && npx wrangler deploy`
+  // serves ./dist as a single-page site. The LAN save API (server.js) is not deployed here;
+  // see TODO.md for the KV-backed version.
+  "name": "gta-payne",
+  "compatibility_date": "2026-10-01",
+  "assets": { "directory": "./dist", "not_found_handling": "single-page-application" }
+}
