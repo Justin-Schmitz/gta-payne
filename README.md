@@ -21,6 +21,9 @@ plain English, built by Fable (often delegating scoped sub-tasks to further Clau
 in parallel), verified in a browser, and iterated on feedback. No game engine, no asset pipeline:
 plain JavaScript, three.js, and CC0 art and sound.
 
+By Justin Schmitz ([LinkedIn](https://www.linkedin.com/in/justin-cloud/) · [GitHub](https://github.com/Justin-Schmitz)) and sons, with Claude Fable 5.1.
+Source: [github.com/Justin-Schmitz/gta-payne](https://github.com/Justin-Schmitz/gta-payne) · Play: [gta-payne.justin-a-schmitz.workers.dev](https://gta-payne.justin-a-schmitz.workers.dev/)
+
 ## Architecture overview
 
 One page, one `<canvas>`, no framework. Roughly 13,000 lines of plain ES modules under `src/`.
